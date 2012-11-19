@@ -4,7 +4,7 @@ import os
 from pprint import pformat
 
 class Language(object):
-	__slots__ = ('name', 'link', 'code', 'features', 'lat', 'lng', 'country')
+	__slots__ = ('name', 'link', 'code', 'features', 'lat', 'lng', 'area')
 	
 	def __init__(self, data):
 		if isinstance(data, Language):
@@ -13,7 +13,7 @@ class Language(object):
 			self.code = data.code
 			self.lat = data.lat
 			self.lng = data.lng
-			self.country = data.country
+			self.area = data.area
 			self.features = data.features
 		else:
 			self.name = data.pop('__name__')
@@ -21,7 +21,7 @@ class Language(object):
 			self.code = data.pop('__code__')
 			self.lat = data.pop('__lat__', '')
 			self.lng = data.pop('__lng__', '')
-			self.country = data.pop('__country__', '')
+			self.area = data.pop('__area__', 'UNKNOWN')
 			self.features = {}
 	
 	def __unicode__(self):
@@ -31,7 +31,7 @@ class Language(object):
 			__code__ = self.code,
 			__lat__ = self.lat,
 			__lng__ = self.lng,
-			__country__ = self.country
+			__area__ = self.area
 		)))
 	
 	__str__ = __unicode__
@@ -122,22 +122,16 @@ class Genealogy(object):
 	def __init__(self):
 		self.families = {}
 		
-		WALS.load_countries()
 		
-		try:
-			if not os.path.exists(Genealogy.LANG_DB) or os.path.getsize(Genealogy.LANG_DB) < 100:
-				self.reload()
-			else:
-				self.load_data()
-		except:
-			WALS.save_countries()
-			raise
+		if not os.path.exists(Genealogy.LANG_DB) or os.path.getsize(Genealogy.LANG_DB) < 100:
+			self.reload()
+		else:
+			self.load_data()
 	
 	def __enter__(self):
 		return self
 	
 	def __exit__(self, exc_type, exc_value, traceback):
-		WALS.save_countries()
 		self.save_data()
 	
 	def __iter__(self):
