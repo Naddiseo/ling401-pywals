@@ -6,7 +6,7 @@ from pprint import pformat
 class Language(object):
 	__slots__ = ('name', 'link', 'code', 'features', 'lat', 'lng', 'area', 'family', 'genus')
 	
-	def __init__(self, data):
+	def __init__(self, data, genus = None, family = None):
 		if isinstance(data, Language):
 			self.name = data.name
 			self.link = data.link
@@ -23,9 +23,9 @@ class Language(object):
 			self.code = data.pop('__code__')
 			self.lat = data.pop('__lat__', '')
 			self.lng = data.pop('__lng__', '')
-			self.genus = data.pop('__genus__', None)
-			self.family = data.pop('__family__', None)
 			self.area = data.pop('__area__', 'UNKNOWN')
+			self.genus = genus
+			self.family = family
 			self.features = {}
 	
 	def __unicode__(self):
@@ -44,7 +44,7 @@ class Language(object):
 class Genus(object):
 	__slots__ = ('name', 'link', 'languages', 'family')
 	
-	def __init__(self, data):
+	def __init__(self, data, family = None):
 		if isinstance(data, Genus):
 			self.name = data.name
 			self.link = data.name
@@ -53,18 +53,16 @@ class Genus(object):
 		else:
 			self.name = data.pop('__name__')
 			self.link = data.pop('__link__')
-			self.family = data.pop('__family__', None)
 			self.languages = {}
+			self.family = family
 		
 		for _language in data.values():
 			if isinstance(_language, Language):
 				language = _language
-			else:
-				language = Language(_language)
-			if not language.family:
-				language.family = self.family
-			if not language.genus:
 				language.genus = self
+				language.family = family
+			else:
+				language = Language(_language, genus = self, family = family)
 			self.languages[language.name] = language
 	
 	def __unicode__(self):
@@ -102,10 +100,9 @@ class Family(object):
 			for _genus in data.values():
 				if isinstance(_genus, Genus):
 					genus = _genus
-				else:
-					genus = Genus(_genus)
-				if not genus.family:
 					genus.family = self
+				else:
+					genus = Genus(_genus, family = self)
 				self.genera[genus.name] = genus
 	
 	def __unicode__(self):
@@ -176,12 +173,13 @@ class Genealogy(object):
 	
 	def genera(self):
 		for family in self:
-			for genera in family:
-				yield genera
+			for genus in family:
+				yield genus
 	
 	def languages(self):
-		for language in self.genera():
-			yield language
+		for genus in self.genera():
+			for language in genus:
+				yield language
 	
 	def find_language_by_code(self, code):
 		for family in self:

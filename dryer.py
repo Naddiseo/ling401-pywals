@@ -10,7 +10,7 @@ def dryer_data(feature_name):
 	
 	for language_data in Feature(feature_name):
 		language = g.find_language_by_code(language_data['wals code']) 
-		area = language.area.name
+		area = language.area
 		genus = language.genus.name
 		value = language_data['description']
 		

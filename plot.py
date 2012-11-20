@@ -46,14 +46,14 @@ for cont in [Australia, EuropeAsia, Africa, NorthAmerica, SouthAmerica]:
 
 g = Genealogy() 
 	
-for language_data in Feature('23A'):
-	language = g.find_language_by_code(language_data['wals code'])
+for language in g.languages():
 	
 	# 
 	
 	if language.area == 'UNKNOWN':
-		language.area = get_area((language.lat, language.lng))
+		#language.area = get_area((language.lat, language.lng))
 		print u"{}({}, {})".format(language.name, language.lat, language.lng)
-	annotate(u"{}({:.3f}, {:.3f})".format(language.name, float(language.lat), float(language.lng)), language.lng, language.lat)
+	if language.name in ('British Sign Language', 'Cornish', 'Italian', 'Somali'): 
+		annotate(u"{}({:.3f}, {:.3f})".format(language.name, float(language.lat), float(language.lng)), language.lat, language.lng)
 
 fig.show()
