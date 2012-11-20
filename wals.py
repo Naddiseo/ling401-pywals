@@ -109,7 +109,7 @@ class WALS(object):
 						raise Exception(u'Bad href for {}'.format(language_link.text))
 					
 					code = match.group(1)
-					lat, lng = cls.get_latlng(code)
+					lng, lat = cls.get_latlng(code)
 					genus_tree[language_link.text] = {
 						'__name__' : language_link.text,
 						'__link__' : language_link.attrs['href'],
