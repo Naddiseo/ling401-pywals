@@ -4,7 +4,7 @@ import os
 from pprint import pformat
 
 class Language(object):
-	__slots__ = ('name', 'link', 'code', 'features', 'lat', 'lng', 'area')
+	__slots__ = ('name', 'link', 'code', 'features', 'lat', 'lng', 'area', 'family', 'genus')
 	
 	def __init__(self, data):
 		if isinstance(data, Language):
@@ -14,6 +14,8 @@ class Language(object):
 			self.lat = data.lat
 			self.lng = data.lng
 			self.area = data.area
+			self.genus = data.genus
+			self.family = data.family
 			self.features = data.features
 		else:
 			self.name = data.pop('__name__')
@@ -21,6 +23,8 @@ class Language(object):
 			self.code = data.pop('__code__')
 			self.lat = data.pop('__lat__', '')
 			self.lng = data.pop('__lng__', '')
+			self.genus = data.pop('__genus__', None)
+			self.family = data.pop('__family__', None)
 			self.area = data.pop('__area__', 'UNKNOWN')
 			self.features = {}
 	
@@ -31,23 +35,25 @@ class Language(object):
 			__code__ = self.code,
 			__lat__ = self.lat,
 			__lng__ = self.lng,
-			__area__ = self.area
+			__area__ = self.area,
 		)))
 	
 	__str__ = __unicode__
 	__repr__ = __unicode__
 
 class Genus(object):
-	__slots__ = ('name', 'link', 'languages')
+	__slots__ = ('name', 'link', 'languages', 'family')
 	
 	def __init__(self, data):
 		if isinstance(data, Genus):
 			self.name = data.name
 			self.link = data.name
 			self.languages = data.languages
+			self.family = data.family
 		else:
 			self.name = data.pop('__name__')
 			self.link = data.pop('__link__')
+			self.family = data.pop('__family__', None)
 			self.languages = {}
 		
 		for _language in data.values():
@@ -55,6 +61,10 @@ class Genus(object):
 				language = _language
 			else:
 				language = Language(_language)
+			if not language.family:
+				language.family = self.family
+			if not language.genus:
+				language.genus = self
 			self.languages[language.name] = language
 	
 	def __unicode__(self):
@@ -94,6 +104,8 @@ class Family(object):
 					genus = _genus
 				else:
 					genus = Genus(_genus)
+				if not genus.family:
+					genus.family = self
 				self.genera[genus.name] = genus
 	
 	def __unicode__(self):
@@ -154,15 +166,23 @@ class Genealogy(object):
 			
 	
 	def save_data(self):
-		fp = open(Genealogy.LANG_DB, 'w')
-		fp.write(pprint.pformat(self.families, width = 120))
-		fp.close()
+		data = pprint.pformat(self.families, width = 120)
+		with open(Genealogy.LANG_DB, 'w') as fp:
+			fp.write(data)
 	
 	def reload(self):
 		data = WALS.get_genealogy(Genealogy.GEN_HTML, True)
 		self._load_from_data(data)
-			
-		
+	
+	def genera(self):
+		for family in self:
+			for genera in family:
+				yield genera
+	
+	def languages(self):
+		for language in self.genera():
+			yield language
+	
 	def find_language_by_code(self, code):
 		for family in self:
 			for genera in family:

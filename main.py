@@ -1,14 +1,24 @@
-from genealogy import Genealogy  # , Family, Genus, Language
-from feature import Feature
-from area import get_area
-with Genealogy() as g:
+from collections import namedtuple, OrderedDict
+
+from dryer import dryer_method
+
+from tableprint import pprinttable
+
+data = dryer_method('102A')
+
+columns = sorted(data.keys())
+
+Row = namedtuple('Row', ('',) + columns)
+
+def data_to_rows(data):
+	rows = OrderedDict([
+		(feature_name, Row()) for feature_name in data.values().keys()
+	])
 	
-	for language_data in Feature('102A'):
-		language = g.find_language_by_code(language_data['wals code'])
-		
-		language.area = get_area((language.lat, language.lng))
-		
-		if language.area == 'UNKNOWN': 
-			print u"language {}({}, {}) is in {}".format(language.name, language.lat, language.lng, language.area)
-		
-		# print language
+	for area, features in data.items():
+		for feature_name, genus_count in features.items():
+			setattr(rows[feature_name], area, genus_count)
+	
+	return rows.values()
+
+pprinttable(data_to_rows(data))
