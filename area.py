@@ -3,14 +3,6 @@ class Poly(object):
 	def __init__(self, data):
 		self.data = tuple((x, y) for x, y in data)
 	
-	@property
-	def x_coords(self):
-		return list(y for _, y in self.data) + [self.data[0][1]]
-	
-	@property
-	def y_coords(self):
-		return list(x for x, _ in self.data) + [self.data[0][0]]
-	
 	def __len__(self):
 		return len(self.data)
 	

@@ -1,8 +1,10 @@
 from wals import WALS
+from genealogy import Genealogy
 
 class Feature(object):
 	
 	def __init__(self, name):
+		self.name = name
 		self.data = WALS.get_feature(name) 
 	
 	def __len__(self):
@@ -26,3 +28,9 @@ class Feature(object):
 	def values(self):
 		return self.data.values()
 	
+	def languages(self):
+		g = Genealogy()
+		for data in self:
+			language = g.find_language_by_code(data['wals code'])
+			language.features[self.name] = data['description']
+			yield language

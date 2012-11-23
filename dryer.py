@@ -1,5 +1,6 @@
 from genealogy import Genealogy
 from feature import Feature
+from area import get_area
 
 
 def dryer_data(feature_name):
@@ -7,10 +8,11 @@ def dryer_data(feature_name):
 	data = {}
 	
 	g = Genealogy()
-	
 	for language_data in Feature(feature_name):
 		language = g.find_language_by_code(language_data['wals code']) 
-		area = language.area
+		area = get_area((language_data['latitude'], language_data['longitude']))
+		if area != language.area:
+			print(u"Language {} in {}, was in {}".format(language.name, area, language.area))
 		genus = language.genus.name
 		value = language_data['description']
 		
@@ -21,6 +23,39 @@ def dryer_data(feature_name):
 	
 	return data
 
+def dryer_data2(*feature_names):
+	# data[area][genus][(feature_values)] = langauge_count
+	data = {}
+	# Languages that all features have
+	languages = set()
+	
+	g = Genealogy()
+	feature = Feature(feature_names[0])
+	
+	for language in feature.languages():
+		languages.add(language.code)
+	
+	for feature_name in feature_names:
+		feature = Feature(feature_name)
+		this_set = set()
+		for language in feature.languages():
+			this_set.add(language.code)
+		
+		languages &= this_set
+	
+	for language_code in languages:
+		language = g.find_language_by_code(language_code)
+		area = language.area
+		genus = language.genus.name
+		value = ','.join(str(v) for v in sorted(language.features.values()))
+		
+		data.setdefault(area, {})
+		data[area].setdefault(genus, {})
+		data[area][genus].setdefault(value, 0)
+		data[area][genus][value] += 1
+	
+	return data
+	
 def dryer_analise(data):
 	# ret[area][feature_value] = genus_count
 	ret = {}
@@ -36,12 +71,16 @@ def dryer_analise(data):
 				
 				if language_count > top_count:
 					current_feature = feature_value
+					top_count = language_count
 			
 			ret[area][current_feature] += 1
 			
 			
 	
 	return ret
+
+def dryer_method2(*feature_names):
+	return dryer_analise(dryer_data2(*feature_names))
 
 def dryer_method(feature_name):
 	return dryer_analise(dryer_data(feature_name))

@@ -3,6 +3,16 @@ import pprint
 import os
 from pprint import pformat
 
+class Singleton(type):
+	def __init__(cls, name, bases, dict):  #@ReservedAssignment
+		super(Singleton, cls).__init__(name, bases, dict)
+		cls.instance = None 
+	
+	def __call__(cls, *args, **kw):  #@NoSelf
+		if cls.instance is None:
+			cls.instance = super(Singleton, cls).__call__(*args, **kw)
+		return cls.instance
+
 class Language(object):
 	__slots__ = ('name', 'link', 'code', 'features', 'lat', 'lng', 'area', 'family', 'genus')
 	
@@ -125,6 +135,8 @@ class Family(object):
 	__repr__ = __unicode__
 	
 class Genealogy(object):
+	__metaclass__ = Singleton
+	
 	LANG_DB = 'langdb.txt'
 	GEN_HTML = 'genealogy.html'
 	

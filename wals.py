@@ -109,14 +109,14 @@ class WALS(object):
 						raise Exception(u'Bad href for {}'.format(language_link.text))
 					
 					code = match.group(1)
-					lng, lat = cls.get_latlng(code)
+					#lng, lat = cls.get_latlng(code)
 					genus_tree[language_link.text] = {
 						'__name__' : language_link.text,
 						'__link__' : language_link.attrs['href'],
 						'__code__' : code,
-						'__lat__' : lat,
-						'__lng__' : lng,
-						'__area__' : area.get_area((lat, lng)),
+						'__lat__' : '0',  #lat,
+						'__lng__' : '0',  #,lng,
+						'__area__' : 'UNKNOWN',
 					}
 				
 				family_tree[genus_link.text] = genus_tree
@@ -127,7 +127,7 @@ class WALS(object):
 	
 	@classmethod
 	def get_feature(cls, feature, refresh = False):
-		outfile = 'feature{}.tsv'.format(feature)
+		outfile = 'feature_data/feature{}.tsv'.format(feature)
 		if not (os.path.exists(outfile) or refresh):
 			cls.save_page(outfile, cls.FEATURE_PAGE.format(feature))
 		
