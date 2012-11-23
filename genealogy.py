@@ -2,24 +2,14 @@ from wals import WALS
 import pprint
 import os
 from pprint import pformat
-
-class Singleton(type):
-	def __init__(cls, name, bases, dict):  #@ReservedAssignment
-		super(Singleton, cls).__init__(name, bases, dict)
-		cls.instance = None 
-	
-	def __call__(cls, *args, **kw):  #@NoSelf
-		if cls.instance is None:
-			cls.instance = super(Singleton, cls).__call__(*args, **kw)
-		return cls.instance
+from singleton import Singleton
 
 class Language(object):
-	__slots__ = ('name', 'link', 'code', 'features', 'lat', 'lng', 'area', 'family', 'genus')
+	__slots__ = ('name', 'code', 'features', 'lat', 'lng', 'area', 'family', 'genus')
 	
 	def __init__(self, data, genus = None, family = None):
 		if isinstance(data, Language):
 			self.name = data.name
-			self.link = data.link
 			self.code = data.code
 			self.lat = data.lat
 			self.lng = data.lng
@@ -29,40 +19,37 @@ class Language(object):
 			self.features = data.features
 		else:
 			self.name = data.pop('__name__')
-			self.link = data.pop('__link__')
 			self.code = data.pop('__code__')
 			self.lat = data.pop('__lat__', '')
 			self.lng = data.pop('__lng__', '')
 			self.area = data.pop('__area__', 'UNKNOWN')
 			self.genus = genus
 			self.family = family
-			self.features = {}
+			self.features = data.pop('__features__', {})
 	
 	def __unicode__(self):
 		return 'Language({})'.format(pformat(dict(
 			__name__ = self.name,
-			__link__ = self.link,
 			__code__ = self.code,
 			__lat__ = self.lat,
 			__lng__ = self.lng,
 			__area__ = self.area,
+			__features__ = self.features
 		)))
 	
 	__str__ = __unicode__
 	__repr__ = __unicode__
 
 class Genus(object):
-	__slots__ = ('name', 'link', 'languages', 'family')
+	__slots__ = ('name', 'languages', 'family')
 	
 	def __init__(self, data, family = None):
 		if isinstance(data, Genus):
 			self.name = data.name
-			self.link = data.name
 			self.languages = data.languages
 			self.family = data.family
 		else:
 			self.name = data.pop('__name__')
-			self.link = data.pop('__link__')
 			self.languages = {}
 			self.family = family
 		
@@ -78,7 +65,6 @@ class Genus(object):
 	def __unicode__(self):
 		ret = dict(
 			__name__ = self.name,
-			__link__ = self.link,
 		)
 		
 		for name, lang in self.languages.items():
@@ -96,15 +82,13 @@ class Genus(object):
 	__repr__ = __unicode__
 
 class Family(object):
-	__slots__ = ('name', 'link', 'genera')
+	__slots__ = ('name', 'genera')
 	def __init__(self, data):
 		if isinstance(data, Family):
 			self.name = data.name
-			self.link = data.link
 			self.genera = data.genera
 		else:
 			self.name = data.pop('__name__')
-			self.link = data.pop('__link__')
 			self.genera = {}
 			
 			for _genus in data.values():
@@ -118,7 +102,6 @@ class Family(object):
 	def __unicode__(self):
 		ret = dict(
 			__name__ = self.name,
-			__link__ = self.link,
 		)
 		for name, genus in self.genera.items():
 			ret[name] = genus

@@ -45,9 +45,10 @@ def get_data_for_table(*features):
 #				print(u"Language {} in {}, was in {}".format(language.name, area, language.area))
 #				language.area = area
 
+with Genealogy():
+	pass
 
-
-pprinttable(get_data_for_table('102A', '23A'))
+#pprinttable(get_data_for_table('102A', '23A'))
 #pprinttable(get_data_for_table('23A'))
 
 

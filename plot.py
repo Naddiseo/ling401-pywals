@@ -18,42 +18,68 @@ HEIGHT = 302.217
 # RIGHT-LEFT 
 WIDTH = 602.933
 
-img = plt.imread(IMAGE_PATH)
 
 X_SCALE = lambda x: ((IMAGE_DIMENSIONS[0] * float(x)) / WIDTH) + IMAGE_CENTER[0]
 Y_SCALE = lambda y: ((IMAGE_DIMENSIONS[1] * float(y)) / -HEIGHT) + IMAGE_CENTER[1]
-#X_SCALE = lambda x: math.log(math.tan(x) + (1 / math.cos(x)))
-fig = plt.figure()
-plt.imshow(img,)
 
-def annotate(label, lat, lng):
+def gd(x):
+	return(2 * math.atan(math.e ** x)) - (math.pi / 2)
+
+def Y_SCALE(y):
+	try:
+		ret = gd(y) * -IMAGE_DIMENSIONS[1] / HEIGHT
+		print "ret={}".format(ret)
+		#ret *= IMAGE_DIMENSIONS[1] / -HEIGHT
+		ret += IMAGE_CENTER[1]
+		#print "returning {} for {}".format(ret, y)
+		return ret
+	except ValueError:
+		print "Error for {}".format(y)
+		raise
+
+
+def annotate(label, lng, lat):
 	plt.annotate(
 		label,
-		xy = (X_SCALE(lat), Y_SCALE(lng)), xytext = (-10, 10),
+		xy = (X_SCALE(lng), Y_SCALE(lat)), xytext = (-10, 10),
 		textcoords = 'offset points', ha = 'right', va = 'bottom',
 		bbox = dict(boxstyle = 'round,pad=0.2', fc = 'yellow', alpha = 0.5),
 		arrowprops = dict(arrowstyle = '->')
 	)
 
-for cont in [Australia, EuropeAsia, Africa, NorthAmerica, SouthAmerica]:
-	
-	for poly in cont:
-		subplot = fig.add_subplot(111)
-		subplot.plot(map(X_SCALE, poly.x_coords), map(Y_SCALE, poly.y_coords))
-	
-		for y, x in poly.data[0:]:
-			annotate("{},{}".format(y, x), x, y)
 
-g = Genealogy() 
+def main():
+	img = plt.imread(IMAGE_PATH)
+	fig = plt.figure()
+	plt.imshow(img,)
 	
-for language in g.languages():
-	
-	# 
-	
-	if language.area == 'UNKNOWN':
-		#language.area = get_area((language.lat, language.lng))
-		print u"{}({}, {})".format(language.name, language.lat, language.lng)
-	if language.name in ('British Sign Language', 'Cornish', 'Italian', 'Somali'): 
-		annotate(u"{}({:.3f}, {:.3f})".format(language.name, float(language.lat), float(language.lng)), language.lat, language.lng)
+	for cont in [Australia, EuropeAsia, Africa, NorthAmerica, SouthAmerica]:
+		
+		for poly in cont:
+			subplot = fig.add_subplot(111)
+			subplot.plot(map(X_SCALE, poly.longitudes()), map(Y_SCALE, poly.latitudes()))
+		
+			#for x, y in poly.data[0:]:
+			#	annotate(u"{},{}".format(x, y), x, y)
 
-fig.show()
+	#g = Genealogy() 
+	
+	for i in (0, -180, 180):
+		for j in (0, 90, -90):
+			annotate('{}, {}'.format(i, j), i, j)
+	
+	#i = 0
+	#for language in g.languages():
+	#	i += 1
+	#	if i >= 30:
+	#		break
+	#	name = language.name.decode('utf-8')
+	#	if language.area == 'UNKNOWN':
+	#		#language.area = get_area((language.lat, language.lng))
+	#		#print u"{}({}, {})".format(language.name, language.lat, language.lng)
+	#		annotate(u"{}({:.3f}, {:.3f})".format(name, float(language.lat), float(language.lng)), language.lat, language.lng)
+	#
+	fig.show()
+
+if __name__ == '__main__':
+	main()
