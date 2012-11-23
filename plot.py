@@ -4,6 +4,9 @@ from area import Africa, Australia, EuropeAsia, NorthAmerica, SouthAmerica, \
 from genealogy import Genealogy
 from feature import Feature
 import math
+import numpy
+TAU = 2 * math.pi
+DEGREE = TAU / 360
 IMAGE_CENTER = (773, 540)
 IMAGE_PATH = 'worldimage.png'
 IMAGE_DIMENSIONS = (1712, 897)
@@ -14,8 +17,9 @@ BOTTOM = -76.542
 LEFT = -180 - (180 - 87.187)
 
 # TOP-BOTTOM
-HEIGHT = 302.217
-# RIGHT-LEFT 
+#HEIGHT = 302.217
+HEIGHT = TOP - BOTTOM
+# RIGHT-LEFT
 WIDTH = 602.933
 
 
@@ -23,18 +27,24 @@ X_SCALE = lambda x: ((IMAGE_DIMENSIONS[0] * float(x)) / WIDTH) + IMAGE_CENTER[0]
 Y_SCALE = lambda y: ((IMAGE_DIMENSIONS[1] * float(y)) / -HEIGHT) + IMAGE_CENTER[1]
 
 def gd(x):
-	return(2 * math.atan(math.e ** x)) - (math.pi / 2)
+	return (2 * math.atan(math.exp(x))) - (TAU / 4)
 
-def Y_SCALE(y):
+def gdinv(x):
+	return numpy.arcsinh(math.tan(x))
+
+def Y_SCALE(lat):
 	try:
-		ret = gd(y) * -IMAGE_DIMENSIONS[1] / HEIGHT
-		print "ret={}".format(ret)
+		ret = -IMAGE_DIMENSIONS[0] / WIDTH * gdinv(lat * DEGREE) / DEGREE
+		#print "ret={}".format(ret)
 		#ret *= IMAGE_DIMENSIONS[1] / -HEIGHT
 		ret += IMAGE_CENTER[1]
-		#print "returning {} for {}".format(ret, y)
+		#print "returning {} for {}".format(ret, lat)
 		return ret
 	except ValueError:
-		print "Error for {}".format(y)
+		print "Error for {}".format(lat)
+		raise
+	except ZeroDivisionError:
+		print "lat is", lat
 		raise
 
 
