@@ -1,8 +1,9 @@
-from wals import WALS
-import pprint
 import os
 from pprint import pformat
+
 from singleton import Singleton
+from wals import WALS
+from area import get_area
 
 class Language(object):
 	__slots__ = ('name', 'code', 'features', 'lat', 'lng', 'area', 'family', 'genus')
@@ -26,6 +27,9 @@ class Language(object):
 			self.genus = genus
 			self.family = family
 			self.features = data.pop('__features__', {})
+		
+		if self.area == 'UNKNOWN':
+			self.area = get_area((self.lng, self.lat))
 	
 	def __unicode__(self):
 		return 'Language({})'.format(pformat(dict(
@@ -158,7 +162,7 @@ class Genealogy(object):
 			
 	
 	def save_data(self):
-		data = pprint.pformat(self.families, width = 120)
+		data = pformat(self.families, width = 120)
 		with open(Genealogy.LANG_DB, 'w') as fp:
 			fp.write(data)
 	

@@ -4,6 +4,7 @@ from area import Africa, Australia, EuropeAsia, NorthAmerica, SouthAmerica, \
 
 import math
 import numpy
+from genealogy import Genealogy
 TAU = 2 * math.pi
 DEGREE = TAU / 360
 IMAGE_CENTER = (773, 540)
@@ -48,6 +49,8 @@ def Y_SCALE(lat):
 
 
 def annotate(label, lng, lat):
+	lng = float(lng)
+	lat = float(lat)
 	plt.annotate(
 		label,
 		xy = (X_SCALE(lng), Y_SCALE(lat)), xytext = (-10, 10),
@@ -70,23 +73,15 @@ def main():
 		
 			#for x, y in poly.data[0:]:
 			#	annotate(u"{},{}".format(x, y), x, y)
-
-	#g = Genealogy() 
 	
-	for i in (0, -180, 180):
-		for j in (0, 90, -90):
-			annotate('{}, {}'.format(i, j), i, j)
+	g = Genealogy() 
 	
-	#i = 0
-	#for language in g.languages():
-	#	i += 1
-	#	if i >= 30:
-	#		break
-	#	name = language.name.decode('utf-8')
-	#	if language.area == 'UNKNOWN':
-	#		#language.area = get_area((language.lat, language.lng))
-	#		#print u"{}({}, {})".format(language.name, language.lat, language.lng)
-	#		annotate(u"{}({:.3f}, {:.3f})".format(name, float(language.lat), float(language.lng)), language.lat, language.lng)
+	for language in g.languages():
+		name = language.name.decode('utf-8')
+		if language.area == 'UNKNOWN':
+			language.area = get_area((language.lng, language.lng))
+			print u"{}({}, {})".format(name, language.lng, language.lat)
+			annotate(u"{}({:.3f}, {:.3f})".format(name, float(language.lng), float(language.lat)), language.lng, language.lat)
 	#
 	fig.show()
 
