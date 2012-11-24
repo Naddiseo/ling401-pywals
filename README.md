@@ -7,12 +7,9 @@ Python library for WALS
 Requirements
 ------------
 
-- urllib3
 - matplotlib (if plotting is needed)
+- numpy (if plotting is needed)
 
+- WALS database, can be obtained from http://wals.info/export
+  Export as comma-separated values, then place all files under "wals_data" directory
 
-Still TODO
-----------
-
-- Double check WALs data, I think they're inconsistent in the order they specify latitude and longitude.
-- For the plotting, use a different projection. Currently the data points do not stretch to the poles properly.

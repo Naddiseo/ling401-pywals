@@ -1,8 +1,7 @@
 import matplotlib.pyplot as plt
 from area import Africa, Australia, EuropeAsia, NorthAmerica, SouthAmerica, \
 	get_area
-from genealogy import Genealogy
-from feature import Feature
+
 import math
 import numpy
 TAU = 2 * math.pi

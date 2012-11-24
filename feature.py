@@ -4,8 +4,19 @@ from genealogy import Genealogy
 class Feature(object):
 	
 	def __init__(self, name):
+		g = Genealogy()
+		
+		data = WALS.get_feature(name)
 		self.name = name
-		self.data = WALS.get_feature(name) 
+		self.description = WALS.FEATURE_MAP[name]
+		self.feature_values = WALS.FEATURE_VALUES[name]
+		self.data = {}
+		
+		for lang_code, value in data.items():
+			language = g.find_language_by_code(lang_code)
+			language.features[name] = self.feature_values[value]
+			
+			self.data[lang_code] = language
 	
 	def __len__(self):
 		return len(self.data)
@@ -20,17 +31,13 @@ class Feature(object):
 		return iter(self.data.values())
 	
 	def keys(self):
-		return self.data.keys()
+		return iter(self.data.keys())
 	
 	def items(self):
-		return self.data.items()
+		return iter(self.data.items())
 	
 	def values(self):
-		return self.data.values()
+		return iter(self.data.values())
 	
 	def languages(self):
-		g = Genealogy()
-		for data in self:
-			language = g.find_language_by_code(data['wals code'])
-			language.features[self.name] = data['description']
-			yield language
+		return self.values()

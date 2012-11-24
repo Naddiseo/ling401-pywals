@@ -1,20 +1,15 @@
 from genealogy import Genealogy
 from feature import Feature
-from area import get_area
 
 
 def dryer_data(feature_name):
 	# data[area][genus][feature_value] = language_count
 	data = {}
 	
-	g = Genealogy()
-	for language_data in Feature(feature_name):
-		language = g.find_language_by_code(language_data['wals code']) 
-		area = get_area((language_data['latitude'], language_data['longitude']))
-		if area != language.area:
-			print(u"Language {} in {}, was in {}".format(language.name, area, language.area))
+	for language in Feature(feature_name):
+		area = language.area
 		genus = language.genus.name
-		value = language_data['description']
+		value = language.features[feature_name]['description']
 		
 		data.setdefault(area, {})
 		data[area].setdefault(genus, {})
@@ -47,7 +42,7 @@ def dryer_data2(*feature_names):
 		language = g.find_language_by_code(language_code)
 		area = language.area
 		genus = language.genus.name
-		value = ','.join(str(v) for v in sorted(language.features.values()))
+		value = ','.join(v['description'] for v in sorted(language.features.values()))
 		
 		data.setdefault(area, {})
 		data[area].setdefault(genus, {})
@@ -74,8 +69,6 @@ def dryer_analise(data):
 					top_count = language_count
 			
 			ret[area][current_feature] += 1
-			
-			
 	
 	return ret
 
